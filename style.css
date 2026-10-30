@@ -97,20 +97,55 @@ h1[tabindex="-1"]:focus,h2[tabindex="-1"]:focus{outline:none}
 .hero-phone strong{color:var(--ink);font-weight:600;white-space:nowrap}
 .emblem{justify-self:center;width:min(100%,24rem);aspect-ratio:1;max-width:100%;border-radius:50%;background:#fff;padding:4%;box-shadow:0 30px 60px -30px color-mix(in srgb, var(--hill) 55%, transparent)}
 .emblem img{width:100%;height:100%;border-radius:50%;display:block}
-.hills{display:block;width:100%;height:clamp(120px,18vw,240px);margin-top:-3rem;position:relative;z-index:1}
+.hills-wrap{position:relative;margin-top:-3rem;z-index:1}
+.hills{display:block;width:100%;height:clamp(120px,18vw,240px);position:relative;z-index:1}
+.sun{position:absolute;z-index:0;left:78.5%;top:calc(clamp(120px,18vw,240px) * .44);width:clamp(84px,10vw,140px);aspect-ratio:1;transform:translate(-50%,-50%);fill:var(--sun);overflow:visible}
 .hills .back{fill:var(--hill-back)}
 .hills .mid{fill:var(--hill-mid)}
 .hills .front{fill:var(--paper)}
-.hills .sun{fill:var(--sun)}
 @media (prefers-reduced-motion: no-preference){
-  .hills .sun{animation:rise 2.4s cubic-bezier(.2,.7,.2,1) both .2s}
-  @keyframes rise{from{transform:translateY(70px)}to{transform:none}}
+  .sun{animation:rise 2.4s cubic-bezier(.2,.7,.2,1) both .2s}
+  @keyframes rise{from{transform:translate(-50%,0)}to{transform:translate(-50%,-50%)}}
 }
 @media (max-width:760px){
   .hero-grid{grid-template-columns:1fr}
   .emblem{width:min(70%,18rem);order:-1}
-  .hills{margin-top:-1rem}
+  .hills-wrap{margin-top:-1rem}
 }
+
+/* Home slideshow */
+.slider-band{background:var(--paper);padding-top:clamp(1rem,3vw,2rem)}
+.slider{position:relative;border-radius:24px;overflow:hidden;aspect-ratio:16/7;max-width:100%;background:var(--hill-back);color:#fff}
+.slides{position:absolute;inset:0}
+.slide{position:absolute;inset:0;margin:0;opacity:0;visibility:hidden;transition:opacity .9s ease,visibility 0s linear .9s}
+.slide.is-active{opacity:1;visibility:visible;transition:opacity .9s ease}
+.slide img{width:100%;height:100%;object-fit:cover;display:block}
+.slide figcaption{position:absolute;inset:auto 0 0 0;padding:clamp(1.2rem,4vw,2.6rem);padding-bottom:calc(clamp(1.2rem,4vw,2.6rem) + 3rem);display:grid;gap:.6rem;justify-items:start;background:linear-gradient(to top, rgba(12,28,18,.78) 0%, rgba(12,28,18,.45) 55%, rgba(12,28,18,0) 100%)}
+.slide h3{font-size:var(--step-3);max-width:16em;color:#fff}
+.slide p{max-width:34em;color:#fff;opacity:.92}
+.slide-link{display:inline-flex;margin-top:.3rem;padding:.7rem 1.2rem;border-radius:999px;background:#fff;color:#1E5B3C;font-weight:600;text-decoration:none}
+.slide-link:hover{background:#F3C21B;color:#16261C}
+.slider-controls{position:absolute;left:clamp(1.2rem,4vw,2.6rem);bottom:clamp(.9rem,2.5vw,1.4rem);display:flex;align-items:center;gap:.5rem;padding:.3rem;border-radius:999px;background:rgba(12,28,18,.45)}
+.sl-btn{width:38px;height:38px;border-radius:50%;border:0;padding:0;display:grid;place-items:center;background:rgba(255,255,255,.88);color:#16261C;cursor:pointer}
+.sl-btn:hover{background:#fff}
+.sl-btn svg{width:18px;height:18px}
+.sl-dots{display:flex;gap:.45rem;padding-inline:.3rem}
+.sl-dots button{width:10px;height:10px;border-radius:999px;border:0;padding:0;background:rgba(255,255,255,.55);cursor:pointer;transition:width .3s}
+.sl-dots button[aria-current="true"]{width:26px;background:#fff}
+.slider :focus-visible{outline-color:#F3C21B}
+.slide.cap-right figcaption{inset:0;align-content:end;justify-items:end;text-align:right;background:linear-gradient(to left, rgba(12,28,18,.82) 0%, rgba(12,28,18,.5) 38%, rgba(12,28,18,0) 62%)}
+.slide.cap-right h3,.slide.cap-right p{max-width:15em}
+.slide.cap-right p{max-width:22em}
+@media (max-width:700px){
+  .slider{aspect-ratio:auto;background:#1E5B3C}
+  .slides{position:relative;display:grid}
+  .slide{position:relative;inset:auto;grid-area:1/1}
+  .slide img{height:auto;aspect-ratio:4/3}
+  .slide figcaption,.slide.cap-right figcaption{position:static;background:#1E5B3C;padding:1.2rem 1.2rem 4.6rem;justify-items:start;text-align:left;align-content:start}
+  .slide h3{font-size:var(--step-2)}
+}
+@media (prefers-reduced-motion: reduce){.slide,.slide.is-active{transition:none}}
+.start-band{padding-top:clamp(2.5rem,5vw,3.5rem)}
 
 /* Home quick links */
 .start-band{padding-top:clamp(2rem,4vw,3rem)}

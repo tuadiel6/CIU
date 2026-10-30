@@ -42,6 +42,31 @@ var BOOKING_API = 'https://script.google.com/macros/s/AKfycbywt3Bwqy1y3nQvZQt4VH
 
   var y=document.getElementById('year'); if(y) y.textContent=new Date().getFullYear();
 
+  // ---------- Home slideshow ----------
+  (function(){
+    var box=document.getElementById('slider'); if(!box)return;
+    var slides=box.querySelectorAll('.slide'), dots=box.querySelectorAll('#sl-dots button'), pb=document.getElementById('sl-pause');
+    var i=0, userPaused=false, hover=false, reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function go(n){
+      i=(n+slides.length)%slides.length;
+      slides.forEach(function(s,k){var on=k===i;s.classList.toggle('is-active',on);s.setAttribute('aria-hidden',String(!on));s.querySelectorAll('a').forEach(function(a){a.tabIndex=on?0:-1})});
+      dots.forEach(function(d,k){if(k===i)d.setAttribute('aria-current','true');else d.removeAttribute('aria-current')});
+    }
+    function setPaused(p){userPaused=p;pb.querySelector('.i-pause').toggleAttribute('hidden',p);pb.querySelector('.i-play').toggleAttribute('hidden',!p);pb.setAttribute('aria-label',p?'Play slideshow':'Pause slideshow')}
+    document.getElementById('sl-prev').addEventListener('click',function(){go(i-1)});
+    document.getElementById('sl-next').addEventListener('click',function(){go(i+1)});
+    dots.forEach(function(d,k){d.addEventListener('click',function(){go(k)})});
+    pb.addEventListener('click',function(){setPaused(!userPaused)});
+    box.addEventListener('mouseenter',function(){hover=true});box.addEventListener('mouseleave',function(){hover=false});
+    box.addEventListener('focusin',function(){hover=true});box.addEventListener('focusout',function(){hover=false});
+    box.addEventListener('keydown',function(e){if(e.key==='ArrowLeft'){go(i-1)}else if(e.key==='ArrowRight'){go(i+1)}});
+    var x0=null;box.addEventListener('touchstart',function(e){x0=e.touches[0].clientX},{passive:true});
+    box.addEventListener('touchend',function(e){if(x0===null)return;var dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>45)go(dx<0?i+1:i-1);x0=null});
+    if(reduce)setPaused(true);
+    go(0);
+    setInterval(function(){if(!userPaused&&!hover&&!document.hidden&&!box.closest('[data-page]').hidden)go(i+1)},6500);
+  })();
+
   // ---------- Appointment booking ----------
   var $=function(id){return document.getElementById(id)};
   var live=/^https:\/\/script\.google\.com\//.test(BOOKING_API||'');
