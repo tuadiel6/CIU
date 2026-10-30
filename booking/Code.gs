@@ -35,7 +35,7 @@ function setup() {
       ['days_ahead', 45, 'How many days ahead people can book'],
       ['min_notice_hours', 24, 'Earliest a booking can be made before the appointment'],
       ['max_per_slot', 1, 'How many people can book the same time (e.g. 2 if two therapists are free)'],
-      ['notify_email', 'centre.ishemaryumuryango@yahoo.com', 'Where new booking alerts are sent (comma-separate several)'],
+      ['notify_email', 'tuadiel6@gmail.com', 'TESTING: change to centre.ishemaryumuryango@yahoo.com before launch. Where new booking alerts are sent (comma-separate several)'],
       ['centre_phone', '+250 788 733 368', 'Shown in confirmation emails']
     ]);
   }
