@@ -1,6 +1,6 @@
 /* Paste your Google Apps Script web app URL here (see booking/SETUP-BOOKING.md).
    Leave it empty to show the calendar with example dates. */
-var BOOKING_API = '';
+var BOOKING_API = 'https://script.google.com/macros/s/AKfycbywt3Bwqy1y3nQvZQt4VHDVBdK8Ce9ENvip9Zjjzpb2wheWwKScAtxiaMCAoGNNvol-/exec';
 
 (function(){
   function copyText(t, btn){
