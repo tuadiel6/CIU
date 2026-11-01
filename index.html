@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600;7..72,700&family=Figtree:wght@400;500;600;700&display=swap">
 <script>try{var t=localStorage.getItem("ciu-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <link rel="icon" href="assets/ciu-mark.webp" type="image/webp">
-<link rel="stylesheet" href="style.css?v=5">
+<link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -51,7 +51,7 @@
         <a class="btn btn-primary" href="#contact">Book an appointment</a>
         <a class="btn btn-quiet" href="#services">See how we help</a>
       </div>
-      <p class="hero-phone">Prefer to talk first? Call <strong>+250 788 733 368</strong></p>
+      <p class="hero-phone">Prefer to talk first? Call <strong>+250 789 766 172</strong></p>
     </div>
     <div class="emblem">
       <img src="assets/ciu-logo.webp" alt="Centre Ishema ry'Umuryango emblem: a smiling family held by two green hands, beneath a rising sun over the hills, with the words Journey to happiness.">
@@ -316,6 +316,46 @@
 </section>
 
 
+<section class="band" id="contact-us" data-page="contact-us" aria-labelledby="cu-h">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 id="cu-h">Contact us</h2>
+      <p class="lede">Call, email or visit us. To see a therapist, book an appointment online.</p>
+    </div>
+    <div class="cu-grid">
+      <div class="cu-block">
+        <h3>Address</h3>
+        <p class="cu-big">KG 865 St<br>Kigali, Rwanda</p>
+        <a class="cu-link" href="https://www.google.com/maps/search/?api=1&amp;query=KG+865+St%2C+Kigali%2C+Rwanda" target="_blank" rel="noopener">Open in Google Maps</a>
+      </div>
+      <div class="cu-block">
+        <h3>For information</h3>
+        <dl class="cu-list">
+          <dt>Phone</dt>
+          <dd><a href="tel:+250789766172">+250 789 766 172</a> <button class="copy" type="button" data-copy="+250789766172">Copy</button></dd>
+          <dt>Email</dt>
+          <dd><a href="mailto:centreishemaryumuryango@gmail.com">centreishemaryumuryango@gmail.com</a> <button class="copy" type="button" data-copy="centreishemaryumuryango@gmail.com">Copy</button></dd>
+        </dl>
+      </div>
+      <div class="cu-block">
+        <h3>Opening hours</h3>
+        <dl class="hours">
+          <dt>Monday to Friday</dt><dd>07:00 to 20:00</dd>
+          <dt>Saturday</dt><dd>Closed</dd>
+          <dt>Sunday</dt><dd>09:00 to 17:00</dd>
+        </dl>
+      </div>
+    </div>
+    <div class="cu-book">
+      <div>
+        <h3>Ready to talk to someone?</h3>
+        <p>Choose a free date and time in our online calendar. Your appointment is confirmed straight away.</p>
+      </div>
+      <a class="btn btn-primary" href="#contact">Book an appointment</a>
+    </div>
+  </div>
+</section>
+
 <section class="band" id="contact" data-page="contact" aria-labelledby="contact-h">
   <div class="wrap contact-grid">
     <div>
@@ -324,15 +364,22 @@
         <p class="lede">Choose a free date and time in the calendar. Your appointment is confirmed straight away.</p>
         <p style="margin-top:1rem;color:var(--muted)">Prefer to book by phone or email? We are happy to help.</p>
       </div>
+      <div class="cline" style="margin-top:2rem">
+        <span class="label">Opening hours</span>
+        <dl class="hours">
+          <dt>Monday to Friday</dt><dd>07:00 to 20:00</dd>
+          <dt>Saturday</dt><dd>Closed</dd>
+          <dt>Sunday</dt><dd>09:00 to 17:00</dd>
+        </dl>
+      </div>
       <div class="contact-lines">
         <div class="cline">
           <span class="label">Phone</span>
-          <span class="value"><a href="tel:+250788733368">+250 788 733 368</a><button class="copy" type="button" data-copy="+250788733368">Copy</button></span>
-          <span class="value"><a href="tel:+250788828308">+250 788 828 308</a><button class="copy" type="button" data-copy="+250788828308">Copy</button></span>
+          <span class="value"><a href="tel:+250789766172">+250 789 766 172</a><button class="copy" type="button" data-copy="+250789766172">Copy</button></span>
         </div>
         <div class="cline">
           <span class="label">Email</span>
-          <span class="value"><a href="mailto:centre.ishemaryumuryango@yahoo.com">centre.ishemaryumuryango@yahoo.com</a><button class="copy" type="button" data-copy="centre.ishemaryumuryango@yahoo.com">Copy</button></span>
+          <span class="value"><a href="mailto:centreishemaryumuryango@gmail.com">centreishemaryumuryango@gmail.com</a><button class="copy" type="button" data-copy="centreishemaryumuryango@gmail.com">Copy</button></span>
         </div>
       </div>
     </div>
@@ -345,10 +392,10 @@
         <div class="cal">
           <div class="cal-head">
             <button class="cal-nav" id="bk-prev" type="button" aria-label="Previous month"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5"/></svg></button>
-            <h4 id="bk-month" aria-live="polite">&nbsp;</h4>
+            <label class="sr-only" for="bk-jump">Month</label><select class="cal-jump" id="bk-jump"></select>
             <button class="cal-nav" id="bk-next" type="button" aria-label="Next month"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5"/></svg></button>
           </div>
-          <div class="cal-grid" id="bk-grid" aria-labelledby="bk-month"></div>
+          <div class="cal-grid" id="bk-grid" aria-labelledby="bk-jump"></div>
           <p class="cal-legend"><i aria-hidden="true"></i>Highlighted dates have free times.</p>
           <p class="bk-status" id="bk-status" role="status">Loading available dates…</p>
         </div>
@@ -372,7 +419,7 @@
           </select>
         </div>
         <div class="row2">
-          <div class="field"><label for="bk-name">Your name</label><input id="bk-name" name="name" autocomplete="name" required></div>
+          <div class="field"><label for="bk-name">Full name</label><input id="bk-name" name="name" autocomplete="name" required></div>
           <div class="field"><label for="bk-phone">Phone number</label><input id="bk-phone" name="phone" type="tel" autocomplete="tel" placeholder="+250 7…" required></div>
         </div>
         <div class="field">
@@ -398,14 +445,14 @@
           <dt>Reference</dt><dd class="ref" id="bk-d-ref"></dd>
         </dl>
         <p id="bk-d-email" class="form-note"></p>
-        <p>To change or cancel, call <strong>+250 788 733 368</strong> and give your reference.</p>
+        <p>To change or cancel, call <strong>+250 789 766 172</strong> and give your reference.</p>
         <button class="btn btn-quiet" type="button" id="bk-again" style="justify-self:start">Book another appointment</button>
       </div>
     </div>
   </div>
 </section>
 
-<section class="band band-paper" data-page="home get-help contact" aria-labelledby="safe-h" style="padding-block:clamp(2.5rem,5vw,4rem)">
+<section class="band band-paper" data-page="home get-help contact contact-us" aria-labelledby="safe-h" style="padding-block:clamp(2.5rem,5vw,4rem)">
   <div class="wrap">
     <div class="safety">
       <div>
@@ -430,12 +477,12 @@
         <div><div class="name">Centre Ishema ry'Umuryango</div><div class="tag">Journey to happiness</div></div>
       </div>
       <nav aria-label="Footer">
-        <a href="#about">About us</a><a href="#services">Services</a><a href="#get-help">How to get help</a><a href="#contact">Contact</a>
+        <a href="#about">About us</a><a href="#services">Services</a><a href="#get-help">How to get help</a><a href="#contact-us">Contact Us</a>
       </nav>
     </div>
-    <small>&copy; <span id="year">2026</span> Centre Ishema ry'Umuryango, a charitable centre in Rwanda founded by Rwandan social workers.</small>
+    <small>&copy; <span id="year">2026</span> Centre Ishema ry'Umuryango is a charitable centre founded to improve and sustain family happiness.</small>
   </div>
 </footer>
-<script src="script.js?v=5"></script>
+<script src="script.js?v=8"></script>
 </body>
 </html>

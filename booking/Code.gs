@@ -9,13 +9,21 @@
  *   Bookings  every booking made from the website
  *
  * The website calls:
- *   GET  <web app URL>?action=availability   -> open dates and times
+ *   GET  <web app URL>?action=availability&from=YYYY-MM-DD&to=YYYY-MM-DD
+ *        -> open dates and times in that range (the calendar asks one month at a time)
  *   POST <web app URL>  (JSON body)          -> books one slot
  *
  * See SETUP-BOOKING.md for step-by-step instructions.
  */
 
 var TZ_DEFAULT = 'Africa/Kigali';
+var NOTIFY_EMAIL = 'centreishemaryumuryango@gmail.com';
+var DAYS_AHEAD = 1826; // about 5 years
+var OPENING_HOURS = [
+  ['Monday', '07:00', '20:00'], ['Tuesday', '07:00', '20:00'], ['Wednesday', '07:00', '20:00'],
+  ['Thursday', '07:00', '20:00'], ['Friday', '07:00', '20:00'], ['Sunday', '09:00', '17:00']
+  // Saturday is a day off, so it has no row.
+];
 var BOOKING_HEADERS = ['Booked at', 'Reference', 'Date', 'Time', 'Service', 'Name', 'Phone', 'Email', 'Message', 'Status'];
 var SERVICES = [
   'Couple therapy', 'Child therapy', 'Family therapy', 'Educational follow-up', 'Rehabilitation',
@@ -32,21 +40,17 @@ function setup() {
   if (s.getLastRow() < 2) {
     s.getRange(2, 1, 6, 3).setValues([
       ['session_minutes', 60, 'Length of one appointment, in minutes'],
-      ['days_ahead', 45, 'How many days ahead people can book'],
+      ['days_ahead', DAYS_AHEAD, 'How many days ahead people can book (1826 = about 5 years)'],
       ['min_notice_hours', 24, 'Earliest a booking can be made before the appointment'],
       ['max_per_slot', 1, 'How many people can book the same time (e.g. 2 if two therapists are free)'],
-      ['notify_email', 'tuadiel6@gmail.com', 'TESTING: change to centre.ishemaryumuryango@yahoo.com before launch. Where new booking alerts are sent (comma-separate several)'],
-      ['centre_phone', '+250 788 733 368', 'Shown in confirmation emails']
+      ['notify_email', NOTIFY_EMAIL, 'Where new booking alerts are sent (comma-separate several)'],
+      ['centre_phone', '+250 789 766 172', 'Shown in confirmation emails']
     ]);
   }
 
   var h = sheet_('Hours', ['Day', 'Start', 'End']);
   if (h.getLastRow() < 2) {
-    h.getRange(2, 1, 6, 3).setNumberFormat('@').setValues([
-      ['Monday', '08:30', '12:30'], ['Monday', '14:00', '17:00'],
-      ['Wednesday', '08:30', '12:30'], ['Wednesday', '14:00', '17:00'],
-      ['Friday', '08:30', '12:30'], ['Saturday', '09:00', '12:00']
-    ]);
+    h.getRange(2, 1, OPENING_HOURS.length, 3).setNumberFormat('@').setValues(OPENING_HOURS);
   }
   h.getRange('B:C').setNumberFormat('@');
 
@@ -58,6 +62,33 @@ function setup() {
   b.setFrozenRows(1);
 
   SpreadsheetApp.flush();
+}
+
+/**
+ * Run once to apply the centre's standard schedule to an existing sheet:
+ * replaces the Hours tab and updates session length, booking window and alert email.
+ * Bookings and Closed dates are not touched.
+ */
+function applyCentreSchedule() {
+  SpreadsheetApp.getActive().setSpreadsheetTimeZone(TZ_DEFAULT);
+  var h = sheet_('Hours', ['Day', 'Start', 'End']);
+  if (h.getLastRow() > 1) h.getRange(2, 1, h.getLastRow() - 1, Math.max(3, h.getLastColumn())).clearContent();
+  h.getRange('B:C').setNumberFormat('@');
+  h.getRange(2, 1, OPENING_HOURS.length, 3).setValues(OPENING_HOURS);
+  setSetting_('session_minutes', 60);
+  setSetting_('days_ahead', DAYS_AHEAD);
+  setSetting_('notify_email', NOTIFY_EMAIL);
+  SpreadsheetApp.flush();
+}
+
+function setSetting_(key, value) {
+  var sh = sheet_('Settings', ['Setting', 'Value', 'What it means']);
+  var last = sh.getLastRow();
+  var keys = last > 1 ? sh.getRange(2, 1, last - 1, 1).getValues() : [];
+  for (var i = 0; i < keys.length; i++) {
+    if (String(keys[i][0]).trim() === key) { sh.getRange(i + 2, 2).setValue(value); return; }
+  }
+  sh.appendRow([key, value, '']);
 }
 
 function sheet_(name, headers) {
@@ -76,7 +107,8 @@ function doGet(e) {
   try {
     var action = (e && e.parameter && e.parameter.action) || 'availability';
     if (action !== 'availability') return json_({ ok: false, error: 'unknown_action' });
-    return json_(availability_());
+    var p = (e && e.parameter) || {};
+    return json_(availability_(p.from, p.to));
   } catch (err) {
     return json_({ ok: false, error: 'server', detail: String(err) });
   }
@@ -94,7 +126,7 @@ function doPost(e) {
     if (v) return json_({ ok: false, error: 'invalid', detail: v });
 
     lock.waitLock(20000);
-    var av = availability_();
+    var av = availability_(data.date, data.date);
     var times = av.days[data.date] || [];
     if (times.indexOf(data.time) < 0) return json_({ ok: false, error: 'taken' });
 
@@ -116,11 +148,11 @@ function doPost(e) {
 
 /* ---------- availability ---------- */
 
-function availability_() {
+function availability_(fromYmd, toYmd) {
   var tz = tz_();
   var set = settings_();
   var session = Number(set.session_minutes) || 60;
-  var daysAhead = Number(set.days_ahead) || 45;
+  var daysAhead = Number(set.days_ahead) || DAYS_AHEAD;
   var notice = Number(set.min_notice_hours) || 0;
   var perSlot = Number(set.max_per_slot) || 1;
 
@@ -147,13 +179,17 @@ function availability_() {
   var names = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
   var days = {};
   var first = Utilities.formatDate(new Date(), tz, 'yyyy-MM-dd');
-  var last = first;
+  var last = Utilities.formatDate(new Date(Date.now() + daysAhead * 86400000), tz, 'yyyy-MM-dd');
 
-  for (var i = 0; i <= daysAhead; i++) {
-    var d = new Date(Date.now() + i * 86400000);
-    var date = Utilities.formatDate(d, tz, 'yyyy-MM-dd');
+  // Range asked for, kept inside today..last and to at most about 3 months per request.
+  var from = /^\d{4}-\d{2}-\d{2}$/.test(fromYmd || '') && fromYmd > first ? fromYmd : first;
+  var to = /^\d{4}-\d{2}-\d{2}$/.test(toYmd || '') ? toYmd : addDays_(from, 62);
+  if (to > last) to = last;
+  if (to > addDays_(from, 93)) to = addDays_(from, 93);
+
+  for (var date = from; date <= to; date = addDays_(date, 1)) {
+    var d = noonUtc_(date);
     var dow = names[Number(Utilities.formatDate(d, tz, 'u')) % 7];
-    last = date;
     var slots = [];
     hours.forEach(function (h) {
       if (h.day !== dow) return;
@@ -168,7 +204,7 @@ function availability_() {
     });
     if (slots.length) days[date] = slots.sort();
   }
-  return { ok: true, timezone: tz, sessionMinutes: session, firstDate: first, lastDate: last, days: days, services: SERVICES };
+  return { ok: true, timezone: tz, sessionMinutes: session, firstDate: first, lastDate: last, from: from, to: to, days: days, services: SERVICES };
 }
 
 function isClosed_(closed, date, from, to) {
@@ -250,6 +286,9 @@ function hhmm_(v) {
   if (m[3] === 'AM' && h === 12) h = 0;
   return ('0' + h).slice(-2) + ':' + m[2];
 }
+
+function noonUtc_(ymd) { var p = ymd.split('-'); return new Date(Date.UTC(+p[0], +p[1] - 1, +p[2], 10)); } // 12:00 in Kigali
+function addDays_(ymd, n) { var d = noonUtc_(ymd); d.setUTCDate(d.getUTCDate() + n); return Utilities.formatDate(d, 'UTC', 'yyyy-MM-dd'); }
 
 function toMin_(t) { var p = t.split(':'); return Number(p[0]) * 60 + Number(p[1]); }
 function fromMin_(m) { return ('0' + Math.floor(m / 60)).slice(-2) + ':' + ('0' + (m % 60)).slice(-2); }

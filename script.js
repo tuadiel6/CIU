@@ -25,7 +25,7 @@ var BOOKING_API = 'https://script.google.com/macros/s/AKfycbywt3Bwqy1y3nQvZQt4VH
   paint();
 
   // One page per menu tab
-  var pages={'home':'Centre Ishema ry\u2019Umuryango','about':'About us','services':'Our services','get-help':'How to get help','team':'Our team','contact':'Book an appointment'};
+  var pages={'home':'Centre Ishema ry\u2019Umuryango','about':'About us','services':'Our services','get-help':'How to get help','team':'Our team','contact':'Book an appointment','contact-us':'Contact us'};
   var secs=document.querySelectorAll('[data-page]'), current=null, baseTitle='Centre Ishema ry\u2019Umuryango';
   function route(moveFocus){
     var h=location.hash.slice(1);
@@ -72,48 +72,81 @@ var BOOKING_API = 'https://script.google.com/macros/s/AKfycbywt3Bwqy1y3nQvZQt4VH
   var live=/^https:\/\/script\.google\.com\//.test(BOOKING_API||'');
   var st={days:{},first:null,last:null,session:60,view:null,date:null,time:null};
   var MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
-  var phoneHelp=' call +250 788 733 368.';
+  var phoneHelp=' call +250 789 766 172.';
   function pad(n){return (n<10?'0':'')+n}
   function ymd(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
   function parse(s){var p=s.split('-');return new Date(+p[0],+p[1]-1,+p[2],12)}
   function pretty(s){return parse(s).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}
   function status(t){var el=$('bk-status');el.textContent=t||'';el.hidden=!t}
 
-  function demoData(){
-    var days={},today=new Date(),first=ymd(today),last=first;
-    var plan={1:['08:30','09:30','10:30','11:30','14:00','15:00','16:00'],3:['08:30','09:30','10:30','11:30','14:00','15:00','16:00'],5:['08:30','09:30','10:30','11:30'],6:['09:00','10:00','11:00']};
-    for(var i=2;i<=45;i++){var d=new Date(today.getFullYear(),today.getMonth(),today.getDate()+i,12);last=ymd(d);
-      var t=(plan[d.getDay()]||[]).filter(function(x,j){return (d.getDate()*7+j*3)%5!==0});
-      if(t.length)days[ymd(d)]=t}
+  var loaded={}, initial=true;
+  function mkey(y,m){return y+'-'+pad(m+1)}
+  function addDays(d,n){return new Date(d.getFullYear(),d.getMonth(),d.getDate()+n,12)}
+  function demoRange(from,to){
+    // Example data shaped like the real service: Mon-Fri 07:00-20:00, Sun 09:00-17:00, Saturday closed.
+    var today=new Date(), first=ymd(today), last=ymd(new Date(today.getFullYear()+5,today.getMonth(),today.getDate(),12)), days={};
+    var start=parse(from<ymd(addDays(today,1))?ymd(addDays(today,1)):from), end=parse(to>last?last:to);
+    for(var d=start;d<=end;d=addDays(d,1)){
+      var dow=d.getDay(), h0=dow===0?9:(dow===6?null:7), h1=dow===0?17:20, t=[];
+      if(h0===null)continue;
+      for(var h=h0;h<h1;h++)if((d.getDate()*7+h*3)%6!==0)t.push(pad(h)+':00');
+      if(t.length)days[ymd(d)]=t;
+    }
     return {ok:true,sessionMinutes:60,firstDate:first,lastDate:last,days:days};
   }
-  function load(){
-    status('Loading available dates…');
-    var p=live?fetch(BOOKING_API+'?action=availability',{cache:'no-store'}).then(function(r){return r.json()}):Promise.resolve(demoData());
-    return p.then(function(d){
+  function fetchRange(from,to){
+    return live?fetch(BOOKING_API+'?action=availability&from='+from+'&to='+to,{cache:'no-store'}).then(function(r){return r.json()}):Promise.resolve(demoRange(from,to));
+  }
+  function buildJump(){
+    var sel=$('bk-jump'); if(sel.options.length||!st.first)return;
+    var f=parse(st.first),l=parse(st.last),d=new Date(f.getFullYear(),f.getMonth(),1),html='';
+    while(d<=l){html+='<option value="'+mkey(d.getFullYear(),d.getMonth())+'">'+MONTHS[d.getMonth()]+' '+d.getFullYear()+'</option>';d=new Date(d.getFullYear(),d.getMonth()+1,1)}
+    sel.innerHTML=html; sel.value=mkey(st.view.getFullYear(),st.view.getMonth());
+  }
+  function loadMonth(y,m,force){
+    var k=mkey(y,m); if(loaded[k]&&!force)return Promise.resolve();
+    status('Loading free times…');
+    var from=k+'-01', to=k+'-'+pad(new Date(y,m+1,0).getDate());
+    return fetchRange(from,to).then(function(d){
       if(!d||!d.ok)throw new Error('bad');
-      st.days=d.days||{};st.first=d.firstDate;st.last=d.lastDate;st.session=d.sessionMinutes||60;
+      st.first=d.firstDate;st.last=d.lastDate;st.session=d.sessionMinutes||60;
+      Object.keys(st.days).forEach(function(x){if(x.indexOf(k)===0)delete st.days[x]});
+      Object.keys(d.days||{}).forEach(function(x){st.days[x]=d.days[x]});
+      loaded[k]=true;
       $('bk-length').textContent='Each appointment lasts '+st.session+' minutes. Times are Rwanda time.';
-      var keys=Object.keys(st.days).sort();
-      if(!st.view){var f=parse(keys[0]||st.first);st.view=new Date(f.getFullYear(),f.getMonth(),1)}
-      status(keys.length?'':'There are no free times at the moment. Please'+phoneHelp);
-      drawMonth();
+      buildJump();
+    });
+  }
+  function hasDays(y,m){var k=mkey(y,m);return Object.keys(st.days).some(function(x){return x.indexOf(k)===0})}
+  function showMonth(y,m,force){
+    st.view=new Date(y,m,1); drawMonth();
+    return loadMonth(y,m,force).then(function(){
+      if(st.view.getFullYear()!==y||st.view.getMonth()!==m)return;
+      if(initial&&!hasDays(y,m)&&st.last&&parse(st.last)>new Date(y,m+1,1)){initial=false;return showMonth(m===11?y+1:y,(m+1)%12)}
+      initial=false; drawMonth();
+      status(hasDays(y,m)?'':'There are no free times in '+MONTHS[m]+'. Try another month, or'+phoneHelp);
     }).catch(function(){
       status('We could not load the calendar. Check your connection and reload the page, or'+phoneHelp);
     });
   }
+  function load(){
+    loaded={};
+    var v=st.view||new Date(new Date().getFullYear(),new Date().getMonth(),1);
+    return showMonth(v.getFullYear(),v.getMonth(),true);
+  }
   function drawMonth(){
-    var g=$('bk-grid'),v=st.view,y=v.getFullYear(),m=v.getMonth();
-    $('bk-month').textContent=MONTHS[m]+' '+y;
+    var g=$('bk-grid'),v=st.view,y=v.getFullYear(),m=v.getMonth(),k=mkey(y,m);
+    var sel=$('bk-jump'); if(sel.options.length)sel.value=k;
     var html=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(function(d){return '<span class="cal-dow" aria-hidden="true">'+d+'</span>'}).join('');
     var lead=(new Date(y,m,1).getDay()+6)%7, n=new Date(y,m+1,0).getDate(), today=ymd(new Date());
     for(var i=0;i<lead;i++)html+='<span class="cal-day empty" aria-hidden="true"></span>';
     for(var d=1;d<=n;d++){
-      var k=y+'-'+pad(m+1)+'-'+pad(d), t=st.days[k], cls='cal-day'+(k===today?' today':'');
-      if(t&&t.length)html+='<button type="button" class="'+cls+'" data-date="'+k+'" aria-pressed="'+(k===st.date)+'" aria-label="'+pretty(k)+', '+t.length+(t.length>1?' free times':' free time')+'">'+d+'</button>';
+      var dk=k+'-'+pad(d), t=st.days[dk], cls='cal-day'+(dk===today?' today':'');
+      if(t&&t.length)html+='<button type="button" class="'+cls+'" data-date="'+dk+'" aria-pressed="'+(dk===st.date)+'" aria-label="'+pretty(dk)+', '+t.length+(t.length>1?' free times':' free time')+'">'+d+'</button>';
       else html+='<span class="'+cls+'" aria-hidden="true">'+d+'</span>';
     }
     g.innerHTML=html;
+    if(!st.first){$('bk-prev').disabled=true;$('bk-next').disabled=true;return}
     var f=parse(st.first),l=parse(st.last);
     $('bk-prev').disabled=(y<f.getFullYear()||(y===f.getFullYear()&&m<=f.getMonth()));
     $('bk-next').disabled=(y>l.getFullYear()||(y===l.getFullYear()&&m>=l.getMonth()));
@@ -141,8 +174,9 @@ var BOOKING_API = 'https://script.google.com/macros/s/AKfycbywt3Bwqy1y3nQvZQt4VH
 
   $('bk-grid').addEventListener('click',function(e){var b=e.target.closest('button[data-date]');if(b)pickDate(b.getAttribute('data-date'))});
   $('bk-slots').addEventListener('click',function(e){var b=e.target.closest('button[data-time]');if(b)pickTime(b.getAttribute('data-time'))});
-  $('bk-prev').addEventListener('click',function(){st.view=new Date(st.view.getFullYear(),st.view.getMonth()-1,1);drawMonth()});
-  $('bk-next').addEventListener('click',function(){st.view=new Date(st.view.getFullYear(),st.view.getMonth()+1,1);drawMonth()});
+  $('bk-prev').addEventListener('click',function(){var v=st.view;showMonth(v.getMonth()===0?v.getFullYear()-1:v.getFullYear(),(v.getMonth()+11)%12)});
+  $('bk-next').addEventListener('click',function(){var v=st.view;showMonth(v.getMonth()===11?v.getFullYear()+1:v.getFullYear(),(v.getMonth()+1)%12)});
+  $('bk-jump').addEventListener('change',function(){var p=this.value.split('-');showMonth(+p[0],+p[1]-1)});
   $('bk-change').addEventListener('click',function(){backToCalendar();var b=document.querySelector('#bk-slots [data-time="'+st.time+'"]');if(b)b.focus()});
   $('bk-again').addEventListener('click',function(){st.date=null;st.time=null;$('bk-times').hidden=true;$('bk-form').reset();backToCalendar();load()});
 

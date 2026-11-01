@@ -18,10 +18,15 @@ Until you finish step 6, the website shows the calendar with **example dates** a
 3. Return to the sheet. You now have four tabs: **Settings**, **Hours**, **Closed** and **Bookings**. The sheet's time zone is set to Africa/Kigali.
 
 ## 4. Set your hours
-- **Hours**: one row per opening period. Use the full day name and 24-hour times, e.g. `Monday | 08:30 | 12:30`. Add a second row for the afternoon to leave a lunch break. The sample rows are examples; replace them.
+The script comes with the centre's schedule: Monday to Friday 07:00-20:00, Sunday 09:00-17:00, Saturday closed, 60-minute sessions, bookings up to 5 years ahead, and alerts sent to centreishemaryumuryango@gmail.com.
+
+**Already have a sheet from an earlier version?** Paste in the new `Code.gs`, save, then choose **applyCentreSchedule** in the function list and click **Run**. It replaces the Hours tab and updates the settings. Existing bookings and closed dates are kept. Then redeploy (see "If you change the script later").
+
+To change the schedule later, edit the tabs directly:
+- **Hours**: one row per opening period. Use the full day name and 24-hour times, e.g. `Monday | 07:00 | 20:00`. To leave a lunch break, split a day into two rows (`Monday | 07:00 | 12:00` and `Monday | 13:00 | 20:00`). Leave a day out to close it every week.
 - **Settings**:
   - `session_minutes`: length of one appointment (60).
-  - `days_ahead`: how far ahead people can book (45).
+  - `days_ahead`: how far ahead people can book (1826, about 5 years).
   - `min_notice_hours`: the latest someone can book before a session (24).
   - `max_per_slot`: how many people can book the same time. Set it to 2 if two therapists can see clients at once.
   - `notify_email`: who gets an email for each new booking.
