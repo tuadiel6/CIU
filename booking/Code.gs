@@ -26,8 +26,10 @@ var OPENING_HOURS = [
 ];
 var BOOKING_HEADERS = ['Booked at', 'Reference', 'Date', 'Time', 'Service', 'Name', 'Phone', 'Email', 'Message', 'Status'];
 var SERVICES = [
-  'Couple therapy', 'Child therapy', 'Family therapy', 'Educational follow-up', 'Rehabilitation',
-  'Baby care centre', 'Psychometric assessment', 'Events and team building', 'Consultancy', "I'm not sure yet"
+  'Couple therapy', 'Marriage preparation', 'Child therapy', 'Family therapy', 'Educational follow-up',
+  'Baby care services', 'Events and celebrations', 'Services for organizations', "I'm not sure yet",
+  // Older names, still accepted so pages cached in visitors' browsers keep working:
+  'Rehabilitation', 'Baby care centre', 'Psychometric assessment', 'Events and team building', 'Consultancy'
 ];
 
 /* ---------- one-time setup ---------- */
