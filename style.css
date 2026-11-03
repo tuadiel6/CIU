@@ -15,8 +15,8 @@
   --on-hill:#FFFFFF;
   --focus:#1F3FA0;
   --danger:#B3261E;
-  --font-display:"Literata", "Georgia", "Times New Roman", serif;
-  --font-body:"Figtree", "Segoe UI", system-ui, sans-serif;
+  --font-display:"Segoe UI Black", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --font-body:"Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
   --step--1:0.875rem; --step-0:1.0625rem; --step-1:1.25rem; --step-2:1.6rem; --step-3:2.1rem; --step-4:clamp(2.3rem, 5.2vw, 3.6rem);
   --max:72rem;
 }
@@ -92,7 +92,7 @@ h1[tabindex="-1"]:focus,h2[tabindex="-1"]:focus{outline:none}
 .hero-copy{min-width:0;display:grid;gap:1.4rem}
 .greeting{font-family:var(--font-display);font-size:var(--step-1);color:var(--earth)}
 .hero h1{font-size:clamp(1.55rem,2.5vw,2.05rem);font-weight:700;max-width:24em;line-height:1.25}
-.hero .lede{text-align:justify;hyphens:auto;-webkit-hyphens:auto}
+@media (min-width:700px){.hero .lede{text-align:justify;hyphens:auto;-webkit-hyphens:auto}}
 .hero-actions{display:flex;flex-wrap:wrap;gap:.8rem;align-items:center}
 .hero-phone{color:var(--muted);font-size:var(--step--1)}
 .hero-phone strong{color:var(--ink);font-weight:600;white-space:nowrap}
@@ -137,6 +137,14 @@ h1[tabindex="-1"]:focus,h2[tabindex="-1"]:focus{outline:none}
 .slide.cap-right figcaption{inset:0;align-content:end;justify-items:end;text-align:right;background:linear-gradient(to left, rgba(12,28,18,.82) 0%, rgba(12,28,18,.5) 38%, rgba(12,28,18,0) 62%)}
 .slide.cap-right h3,.slide.cap-right p{max-width:15em}
 .slide.cap-right p{max-width:22em}
+@media (min-width:701px){
+  .slider{background:#1E5B3C}
+  .slide{display:grid;grid-template-columns:minmax(0,36%) minmax(0,1fr);grid-template-areas:"cap img"}
+  .slide img{grid-area:img;height:100%}
+  .slide figcaption,.slide.cap-right figcaption{grid-area:cap;position:static;inset:auto;background:#1E5B3C;align-content:center;justify-items:start;text-align:left;padding:clamp(1.4rem,3vw,2.6rem);padding-bottom:calc(clamp(1.4rem,3vw,2.6rem) + 3rem)}
+  .slide h3,.slide.cap-right h3{max-width:none}
+  .slide p,.slide.cap-right p{max-width:none}
+}
 @media (max-width:700px){
   .slider{aspect-ratio:auto;background:#1E5B3C}
   .slides{position:relative;display:grid}
@@ -356,3 +364,8 @@ legend{font-weight:600;padding:0;margin-bottom:.7rem}
 .foot nav{display:flex;flex-wrap:wrap;gap:1.2rem}
 .foot a{color:var(--on-hill)}
 .foot small{display:block;margin-top:2rem;opacity:.75}
+/* Segoe UI Black for display text */
+h1,h2,h3,h4,.brand span,.svc h4,.leader h4,.teamcol h4,.foot-brand .name,.cal-jump,.marker,.hotlines b,.done .ref,.picked strong,.cu-block h3,.team-sub{font-weight:900;letter-spacing:0}
+.greeting,.statement p,.education .quote,.cline .value,.skills li{font-family:var(--font-body)}
+.statement p{font-weight:600}
+.slide h3{font-weight:900}
